@@ -74,6 +74,7 @@ unsigned long prand(unsigned long state) {
 
 unsigned long oprng(void) {
   unsigned long result;
-  result = 2 * (prand(rand()) % 1073741824) + 2147483649; // 2^31 + 2(30 bit random integer) + 1
+  //result = 2 * (prand(rand()) % 1073741824) + 2147483649; // 2^31 + 2(30 bit random integer) + 1,
+	result = 6 * prand(rand()) - 1;
   return result;
 }

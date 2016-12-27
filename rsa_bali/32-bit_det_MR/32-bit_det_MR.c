@@ -95,7 +95,7 @@ unsigned long powb2 (unsigned char e){
 
 unsigned long rsaprime_gen(unsigned long e){
   unsigned long n = 0;
-  while (!((miller_rabin(n)) && (gcd(e, n-1) == 1))) {
+  while (!(miller_rabin(n))) {
     n = oprng();
   }
   return n;
