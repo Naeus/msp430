@@ -7,6 +7,5 @@
 
 unsigned long rand(void);
 unsigned long prand(unsigned long state);
-unsigned long oprng(void);
 
 #endif /* __RAND_H */
