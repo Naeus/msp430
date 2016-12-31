@@ -1,6 +1,6 @@
-#include <stdio.h>
+//#include <stdio.h>
 
-static const unsigned char outmsg[] = "ABCDEFGH";
+//static const unsigned char outmsg[] = "ABCDEFGH";
 
 unsigned long * encode(unsigned char *outmsg)  { //  returns block
 
@@ -27,7 +27,8 @@ unsigned long * encode(unsigned char *outmsg)  { //  returns block
     outblock[1] += (unsigned long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
     outblock[1] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
-    for (unsigned long i = 2; (i < blocksiz); i++) {
+    unsigned char i;
+    for (i = 2; (i < blocksiz); i++) {
       r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
       r2 = prand(rand()) >> (8 * 7);
 
@@ -38,12 +39,13 @@ unsigned long * encode(unsigned char *outmsg)  { //  returns block
 
     }
 
-    return block;
+    return outblock;
 }
 
 
 
 //    DECODING
+/*
 unsigned char * decode(unsigned long *inmsg) {
 
   unsigned char blk[blocksiz];
@@ -56,6 +58,9 @@ unsigned char * decode(unsigned long *inmsg) {
 
   }
 }
+
+*/
+
 /*
 printf("\n%c", outmsg[1]);
 printf("\n%u", sizeof(outmsg));
