@@ -1,83 +1,63 @@
 #include <stdio.h>
-#include <string.h>
 
-/*
+static const unsigned char outmsg[] = "ABCDEFGH";
 
-we have n size of 8 bytes
+unsigned long * encode(unsigned char *outmsg)  { //  returns block
 
-BLOCK FORMAT:
-FIRST BLOCK
-  1ST CHAR = CURRENT BLOCK NUMBER
-  2ND CHAR = HOW MANY BLOCKS MESSAGE IS SLICED TO
-  3RD CHAR = 'R'
-  4TH CHAR = 'S'
-  5TH CHAR = 'A'
-  6TH CHAR = '\0'
+    //    ENCODING
+    unsigned char blocksiz = (sizeof(outmsg) - 1) + 2;   //  8 + 2 for initialization
+    unsigned long long r1;
+    unsigned long long r2;
+    static unsigned long outblock[blocksiz];
 
+    //  0x00 28 51 46 <= block < 0x40000057000016AC
+    r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
+    r2 = prand(rand()) >> (8 * 7);
 
-*/
-//unsigned long long parse(unsigned char msg, unsigned char blksiz){
+    outblock[0] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
+    outblock[0] += (unsigned long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
+    outblock[0] += (unsigned long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
+    outblock[0] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
-//*
-int main(void){
-  char msg[] = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-  unsigned char blksiz = 4;
-//*/
+    r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
+    r2 = prand(rand()) >> (8 * 7);
 
-  unsigned long long msg_siz = sizeof(msg) - 1;
-  unsigned long long prsdblks_siz = (msg_siz / blksiz) + 1;
+    outblock[1] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
+    outblock[1] += (unsigned long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
+    outblock[1] += (unsigned long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
+    outblock[1] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
-  if (!(prsdblks_siz <254)) {
-    return 0;
-  }
+    for (unsigned long i = 2; (i < blocksiz); i++) {
+      r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
+      r2 = prand(rand()) >> (8 * 7);
 
-  unsigned long long prsdblks[prsdblks_siz + 2][blksiz];
-  char m[prsdblks_siz * blksiz] = {65};
+      outblock[i] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
+      outblock[i] += (unsigned long) (outmsg[i-2] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
+      outblock[i] += (unsigned long) (i ^ r1) << (8 * 1); // block # XOR with [1]
+      outblock[i] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
-  strncpy(m, msg, (prsdblks_siz * blksiz));
-
-  /*  PADDING
-  */
-
-  /*  SLICING   */
-
-printf("%s\n", m);
-printf("%s\n", msg);
-
-prsdblks[0][0] = 0;
-prsdblks[0][1] = prsdblks_siz + 2;
-prsdblks[0][2] = 82;
-prsdblks[0][3] = 83;
-prsdblks[0][4] = 65;
-// {0, prsdblks_siz, "R", "S", "A", 0}
-unsigned char j;
-unsigned long long i;
-unsigned long long c;
-for (i = 1; i < prsdblks_siz + 1; i++) {
-  prsdblks[i][0] = i;
-  for (j = 1; j < blksiz + 1; j++) {
-    prsdblks[i][j] =(unsigned long long) m[c];
-    printf("%c", prsdblks[i][j]);
-    c++;
-  }
-}
-
-for (i = 0; i < prsdblks_siz + 2; i++) {
-        printf("\n");
-        for (j = 0; j < blksiz+2; j++) {
-            printf("%llu ", prsdblks[i][j]);
-        }
     }
 
-prsdblks[prsdblks_siz + 1][0] = prsdblks_siz + 1;
-prsdblks[prsdblks_siz + 1][1] = 69;
-prsdblks[prsdblks_siz + 1][2] = 79;
-prsdblks[prsdblks_siz + 1][3] = 77;
-prsdblks[prsdblks_siz + 1][4] = 66;
-//prsdblks[prsdblks_siz + 1] = {(prsdblks_siz + 1), "E", "O", "F", "M", 0}
-
-
-
-
-printf("%s\n", prsdblks[0]);
+    return block;
 }
+
+
+
+//    DECODING
+unsigned char * decode(unsigned long *inmsg) {
+
+  unsigned char blk[blocksiz];
+
+  for (unsigned long i = 2; (i < blocksiz); i++) {
+
+    blk[i] = (unsigned char) (((block[i] >> (8 * 2)) ^ block[i]) & 0x000000FF);
+    //blk[i] += (unsigned char) (((block[i] << (8 * 2)) ^ block[i]) & 0x0000FF00);
+    //printf("\n%u", blk[i]);
+
+  }
+}
+/*
+printf("\n%c", outmsg[1]);
+printf("\n%u", sizeof(outmsg));
+printf("\n%lu", block[0]);
+*/
