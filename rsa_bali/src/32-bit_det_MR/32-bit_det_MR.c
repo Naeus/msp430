@@ -59,11 +59,11 @@ unsigned char miller_rabin (unsigned long n) {
       unsigned char r;
       //  test1 checking if a^d is congruent to 1 in mod n, thus not composite
       for (i = 0; i < WN; i++) {
-        if(PowMod(a[i], d, n) != 1){
+        if(pow_mod(a[i], d, n) != 1){ //pow_mod works faster
           //  test2 checking if a^((2^r)*d) is congruent to -1 mod n, thus not composite
           result = 0;
           for (r = 0; r < s; r++){
-            if(PowMod(a[i], powb2(r)*d, n) == n-1){
+            if(pow_mod(a[i], powb2(r)*d, n) == n-1){
               result = 1;
               break;
             }

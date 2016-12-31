@@ -1,4 +1,4 @@
-/*
+//*
 //  a^d % n
 unsigned long long pow_mod (unsigned long long a, unsigned long long d, unsigned long long n)
 {
@@ -18,7 +18,7 @@ unsigned long long pow_mod (unsigned long long a, unsigned long long d, unsigned
     }
     return result;
 }
-*/
+//*/
 
 //  2^e under 32-bit, e>0
 unsigned long powb2 (unsigned char e) {

@@ -1,7 +1,7 @@
 #ifndef __BALI_MATH_H
 #define __BALI_MATH_H
 
-//unsigned long long pow_mod (unsigned long long a, unsigned long long d, unsigned long long n);
+unsigned long long pow_mod (unsigned long long a, unsigned long long d, unsigned long long n);
 unsigned long powb2 (unsigned char e);
 unsigned long long gcdExtended(unsigned long long e, unsigned long long totn, long long *d, long long *t);
 unsigned long long AddMod(unsigned long long a, unsigned long long b, unsigned long long m);
