@@ -3,15 +3,13 @@
 #include "32-bit_det_MR.h"
 #include "parsing.h"
 
-#define E 3
-
-unsigned long long rsa_init(unsigned long long *d) {//  returns d and n
+unsigned long long rsa_init(unsigned char e, unsigned long long *d) {//  returns d and n
   unsigned long p = rsae3prime_gen();
   unsigned long q = rsae3prime_gen();
   unsigned long long n = (unsigned long long) p * q;
   unsigned long long totn = (unsigned long long) (p - 1) * (q - 1);
   long long s, t;
-  d = gcdExtended(E, totn, &s, &t);
+  d = gcdExtended(e, totn, &s, &t);
 
   if (s < 0) {
     d = s + totn;
