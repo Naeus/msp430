@@ -1,26 +1,26 @@
-//#include <stdio.h>
-
-//static const unsigned char outmsg[] = "ABCDEFGH";
-
-unsigned long * encode(unsigned char *outmsg)  { //  returns block
+#include "bali_rand.h"
+void encode(unsigned char *outmsg, unsigned long *outblock, unsigned char blocksiz)  { //  returns block
 
     //    ENCODING
-    unsigned char blocksiz = (sizeof(outmsg) - 1) + 2;   //  8 + 2 for initialization
-    unsigned long long r1;
-    unsigned long long r2;
-    static unsigned long outblock[blocksiz];
+    unsigned char r1 = 0xFF;
+    unsigned char r2 = 0xFF;
+    unsigned long r = 0x00;
+    //  0x00 28 51 46 <= block[i] < 0x40000057000016AC
 
-    //  0x00 28 51 46 <= block < 0x40000057000016AC
-    r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
-    r2 = prand(rand()) >> (8 * 7);
+    r = prand(rand());
+    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
+    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
+    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
     outblock[0] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
     outblock[0] += (unsigned long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
     outblock[0] += (unsigned long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
     outblock[0] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
-    r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
-    r2 = prand(rand()) >> (8 * 7);
+    r = prand(rand());
+    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
+    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
+    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
     outblock[1] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
     outblock[1] += (unsigned long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
@@ -29,8 +29,11 @@ unsigned long * encode(unsigned char *outmsg)  { //  returns block
 
     unsigned char i;
     for (i = 2; (i < blocksiz); i++) {
-      r1 = ((prand(rand()) >> (8 * 7)) % (256 - 1)) + 1;
-      r2 = prand(rand()) >> (8 * 7);
+
+      r = prand(rand());
+      r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
+      r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
+      r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
       outblock[i] = (unsigned long) r1 << (8 * 3); //  01 + should be random [1]
       outblock[i] += (unsigned long) (outmsg[i-2] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
@@ -38,31 +41,58 @@ unsigned long * encode(unsigned char *outmsg)  { //  returns block
       outblock[i] += (unsigned long) r2 << (8 * 0); //  should be random [2]
 
     }
-
-    return outblock;
 }
 
 
 
 //    DECODING
-/*
-unsigned char * decode(unsigned long *inmsg) {
+//*
+unsigned char decode(unsigned long *inblock, unsigned char *inmsg) {
+  unsigned char numeration;
+  numeration = ((inblock[1] & 0xFF000000) >> (8 * 3)) ^ ((inblock[1] & 0x0000FF00) >> (8 * 1));
 
-  unsigned char blk[blocksiz];
-
-  for (unsigned long i = 2; (i < blocksiz); i++) {
-
-    blk[i] = (unsigned char) (((block[i] >> (8 * 2)) ^ block[i]) & 0x000000FF);
-    //blk[i] += (unsigned char) (((block[i] << (8 * 2)) ^ block[i]) & 0x0000FF00);
-    //printf("\n%u", blk[i]);
-
+  if (numeration != 1) {
+    return 0;
   }
+
+  unsigned char blocksiz = (inblock[1] & 0x000000FF) ^ ((inblock[1] & 0x00FF0000) >> (8 * 2));
+
+  //inblock[i] = (inblock[i] & 0x000000FF) ^ ((inblock[i] & 0x00FF0000) >> (8 * 2))
+  unsigned char i;
+  for (i = 2; (i < blocksiz); i++) {
+    numeration = ((inblock[i] & 0xFF000000) >> (8 * 3)) ^ ((inblock[i] & 0x0000FF00) >> (8 * 1));
+    if (numeration != i) {
+      return 0;
+    }
+    inmsg[i] = (unsigned char) ((inblock[i] & 0x000000FF) ^ ((inblock[1] & 0x00FF0000) >> (8 * 2)));
+  }
+  return 1;
 }
 
-*/
+/*/
 
 /*
 printf("\n%c", outmsg[1]);
 printf("\n%u", sizeof(outmsg));
 printf("\n%lu", block[0]);
+*/
+
+
+
+//    TEST
+/*
+#include <stdio.h>
+int main(void) {
+  unsigned char message[] = "Sacma sapan seyler.";
+  unsigned long blocks[sizeof(message)/sizeof(message[0])];
+  encode(message, blocks);
+
+  for (unsigned char i = 0; i < 5; i++) {
+    printf("%lu", blocks[i]);
+  }
+
+
+
+  return 0;
+}
 */

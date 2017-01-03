@@ -1,0 +1,67 @@
+#include <msp430g2553.h>
+//#include <math.h>
+#include "bali_math.h"
+#include "32-bit_det_MR.h"
+#include "parsing.h"
+#include <stdlib.h>
+
+#define E 3
+
+int main(void) {
+
+  // stop watchdog timer
+  WDTCTL = WDTPW | WDTHOLD;
+  // set up bit 0 of P1 as output
+  P1DIR = BIT0+BIT6;
+  // intialize bit 0 of P1 to 0
+  P1OUT = 0x00;
+
+
+  //unsigned long n = 4294967291;
+  volatile unsigned char z;
+  volatile unsigned long long p;
+  volatile unsigned long long q;
+  volatile unsigned long long n;
+  unsigned char i = 0;
+
+  long long s, t;
+  volatile unsigned long long totn;
+  volatile unsigned long long d;
+
+  unsigned char msg[] = "A ,\'.bz";
+  unsigned char blocksiz = sizeof(msg)/sizeof(msg[0]) + 2;
+  unsigned long blocks[20];	//somehow screws blocksiz up when greater than 125 in size
+  //unsigned long *blocks = malloc(blocksiz * sizeof(*blocks));
+  encode(msg, blocks, blocksiz);
+  // loop forever
+  for (;;) {
+	  p = rsae3prime_gen();
+	  q = rsae3prime_gen();
+	  z = miller_rabin(p);
+
+	  totn = (p - 1) * (q - 1);
+	  d = gcdExtended(E, totn, &s, &t);
+
+	  if (s < 0) {
+	    d = s + totn;
+	  }
+
+	  else  {
+	    d = s;
+	  }
+	  n = p * q;
+
+	  /*
+	  for (i=0; i<(sizeof(outblock[0]) / sizeof(outblock)); i++) {
+		  c[i] = PowMod(outblock[i], E, n);
+		  pt[i] = PowMod(c[i], d, n);
+	  }
+	  */
+
+    // toggle bit 0 of P1
+  	  P1OUT ^= BIT6;
+	  if(t){
+	  	  P1OUT ^= 0x01;
+	  }
+  }
+}
