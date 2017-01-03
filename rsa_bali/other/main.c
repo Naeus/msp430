@@ -1,5 +1,3 @@
-//project needs to have all /src files
-
 #include <msp430g2553.h>
 #include "rsa.h"
 
@@ -19,7 +17,7 @@ int main(void) {
   unsigned long long outblock[10] = {0};	//somehow disrupts blocksiz when greater than 125 in size
   unsigned long long d = 0;
   unsigned long long n = 0;
-  n = rsa_init(&d);
+  n = rsa_init(E, &d);
   rsa_e(E, n, outblock, blocksiz, outmsg);
   rsa_d(d, n, outblock, blocksiz, outmsg);
 
