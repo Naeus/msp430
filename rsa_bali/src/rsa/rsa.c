@@ -9,14 +9,14 @@ unsigned long long rsa_init(unsigned char e, unsigned long long *d) {//  returns
   unsigned long long n = (unsigned long long) p * q;
   unsigned long long totn = (unsigned long long) (p - 1) * (q - 1);
   long long s, t;
-  d = gcdExtended(e, totn, &s, &t);
+  *d = gcdExtended(e, totn, &s, &t);
 
   if (s < 0) {
-    d = s + totn;
+    *d = s + totn;
   }
 
   else  {
-    d = s;
+    *d = s;
   }
   return n;
 }
@@ -34,5 +34,5 @@ void rsa_d(unsigned long long d, unsigned long long n, unsigned long long *inblo
   for (i=0; i<blocksiz; i++) {
     inblock[i] = PowMod(inblock[i], d, n);
   }
-  decode(inblock, inmsg);
+  i = decode(inblock, inmsg);
 }

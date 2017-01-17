@@ -19,6 +19,13 @@ int main(void) {
   unsigned long long n = 0;
   n = rsa_init(E, &d);
   rsa_e(E, n, outblock, blocksiz, outmsg);
+  outmsg[0] = 65;
+  outmsg[1] = 65;
+  outmsg[2] = 65;
+  outmsg[3] = 65;
+  outmsg[4] = 65;
+  outmsg[5] = 65;
+  outmsg[6] = 65;
   rsa_d(d, n, outblock, blocksiz, outmsg);
 
   // loop forever
