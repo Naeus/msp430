@@ -34,5 +34,5 @@ void rsa_d(unsigned long long d, unsigned long long n, unsigned long long *inblo
   for (i=0; i<blocksiz; i++) {
     inblock[i] = PowMod(inblock[i], d, n);
   }
-  i = decode(inblock, inmsg);
+  i = decode(inblock, inmsg); //  BUG inblock is being sent to decode as ull, but needs to be ul
 }

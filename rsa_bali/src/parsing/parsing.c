@@ -63,7 +63,7 @@ unsigned char decode(unsigned long long *inblock, unsigned char *inmsg) { //retu
     if (numeration != i) {
       return 0;
     }
-    inmsg[i] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));  //  BUG on second part inblock[1] should be inblock[i]?
+    inmsg[i- 2] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));  //  BUG on second part inblock[1] should be inblock[i]?
   }
   return 1;
 }
@@ -138,7 +138,7 @@ unsigned char decode_address(unsigned long long *inblock, unsigned char *inmsg) 
     if (numeration != i) {
       return 0;
     }
-    inmsg[i] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));
+    inmsg[i - 3] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));
   }
   return 1;
 }
