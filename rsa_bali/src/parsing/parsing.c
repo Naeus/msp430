@@ -14,9 +14,9 @@ void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char b
     r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
     outblock[0] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-    outblock[0] += (unsigned long long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
-    outblock[0] += (unsigned long long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
-    outblock[0] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
+    outblock[0] |= (unsigned long long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
+    outblock[0] |= (unsigned long long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
+    outblock[0] |= (unsigned long long) r2 << (8 * 0); //  should be random [2]
 
     r = prand(rand());
     r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
@@ -24,9 +24,9 @@ void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char b
     r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
     outblock[1] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-    outblock[1] += (unsigned long long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
-    outblock[1] += (unsigned long long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
-    outblock[1] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
+    outblock[1] |= (unsigned long long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
+    outblock[1] |= (unsigned long long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
+    outblock[1] |= (unsigned long long) r2 << (8 * 0); //  should be random [2]
 
     unsigned char i;
     for (i = 2; (i < blocksiz); i++) {
@@ -37,9 +37,9 @@ void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char b
       r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
       outblock[i] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-      outblock[i] += (unsigned long long) (outmsg[i-2] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
-      outblock[i] += (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
-      outblock[i] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
+      outblock[i] |= (unsigned long long) (outmsg[i-2] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
+      outblock[i] |= (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
+      outblock[i] |= (unsigned long long) r2 << (8 * 0); //  should be random [2]
 
     }
 }
@@ -68,46 +68,20 @@ unsigned char decode(unsigned long long *inblock, unsigned char *inmsg) { //retu
   return 1;
 }
 
-void encode_address(unsigned char *outmsg, unsigned long long *outblock, unsigned char blocksiz, unsigned char address)  { //  returns outblock
+void encode_address(unsigned char *outmsg, unsigned long long *outblock, unsigned char address)  { //  returns outblock
 
-    //    ENCODING
+    unsigned char arr[4];
+    arr[0] = 2; //  start of text
+    arr[1] = address; //  address
+    arr[2] = outmsg[0]; //  data
+    arr[3] = 3; //  end of text, could be changed into outmsg[1] if needed
+
     unsigned char r1 = 0xFF;
     unsigned char r2 = 0xFF;
     unsigned long r = 0x00;
-    //  0x00 28 51 46 <= block[i] < 0x40000057000016AC
-
-    r = prand(rand());
-    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
-    outblock[0] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-    outblock[0] += (unsigned long long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
-    outblock[0] += (unsigned long long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
-    outblock[0] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
-
-    r = prand(rand());
-    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
-    outblock[1] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-    outblock[1] += (unsigned long long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
-    outblock[1] += (unsigned long long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
-    outblock[1] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
-
-    r = prand(rand());
-    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
-    outblock[2] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-    outblock[2] += (unsigned long long) (address ^ r2) << (8 * 2); //    address to be sent
-    outblock[2] += (unsigned long long) (2 ^ r1) << (8 * 1); // block # XOR with [1]
-    outblock[2] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
 
     unsigned char i;
-    for (i = 3; (i < blocksiz); i++) {
+    for (i = 0; (i < 4); i++) {
 
       r = prand(rand());
       r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
@@ -115,10 +89,9 @@ void encode_address(unsigned char *outmsg, unsigned long long *outblock, unsigne
       r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
 
       outblock[i] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
-      outblock[i] += (unsigned long long) (outmsg[i-3] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
-      outblock[i] += (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
-      outblock[i] += (unsigned long long) r2 << (8 * 0); //  should be random [2]
-
+      outblock[i] |= (unsigned long long) (arr[i] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
+      outblock[i] |= (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
+      outblock[i] |= (unsigned long long) r2 << (8 * 0); //  should be random [2]
     }
 }
 
@@ -133,12 +106,39 @@ unsigned char decode_address(unsigned long long *inblock, unsigned char *inmsg) 
   unsigned char blocksiz = (inblock[1] & 0x00000000000000FF) ^ ((inblock[1] & 0x0000000000FF0000) >> (8 * 2));
 
   unsigned char i;
-  for (i = 3; (i < blocksiz); i++) {
+  for (i = 1; (i < blocksiz - 1); i++) {
     numeration = ((inblock[i] & 0x00000000FF000000) >> (8 * 3)) ^ ((inblock[i] & 0x000000000000FF00) >> (8 * 1));
     if (numeration != i) {
       return 0;
     }
-    inmsg[i - 3] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));
+    inmsg[i - 1] = (unsigned char) ((inblock[i] & 0x00000000000000FF) ^ ((inblock[i] & 0x0000000000FF0000) >> (8 * 2)));
   }
   return 1;
 }
+
+unsigned long long bc8to64(unsigned char *arr){
+  unsigned long long result = 0;
+  unsigned char i;
+  for (i = 0; i < 8; i++) {
+    result |= (unsigned long long) arr[i] << (8 * (7 - i));
+  }
+  return result;
+}
+
+void bc64to8(unsigned long long a, unsigned char *arr){
+  unsigned long long f = 0xFF00000000000000;
+  unsigned char i;
+  for (i = 0; i < 8; i++) {
+    arr[i] = (unsigned char) ((a & (f >> (8 * i))) >> (8 * (7 - i)));
+  }
+}
+
+//	test bc8to64 and bc64to8
+/*
+unsigned long long testconv = 0x0123456789ABCDEF;
+unsigned char testconvarr[8] = {0};
+testconv = 0xFEDCBA9876543210;
+bc64to8(testconv, testconvarr);
+testconv = bc8to64(testconvarr);
+*/
+//	end of test
