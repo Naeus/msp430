@@ -126,10 +126,9 @@ unsigned long long bc8to64(unsigned char *arr){
 }
 
 void bc64to8(unsigned long long a, unsigned char *arr){
-  unsigned long long f = 0xFF00000000000000;
   unsigned char i;
   for (i = 0; i < 8; i++) {
-    arr[i] = (unsigned char) ((a & (f >> (8 * i))) >> (8 * (7 - i)));
+    arr[i] = (unsigned char) ((a & (0xFF00000000000000 >> (8 * i))) >> (8 * (7 - i)));
   }
 }
 
