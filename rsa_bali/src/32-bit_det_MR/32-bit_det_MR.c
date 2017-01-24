@@ -1,7 +1,7 @@
 /* deterministic prime tester for numbers in 32-bit using Miller-Rabin Algorithm
 
     USAGE
-    Ä±nsigned char = miller_rabin(unsigned long n); returns 0 if the 32-bit
+    ınsigned char = miller_rabin(unsigned long n); returns 0 if the 32-bit
     number n is composite, returns 1 if not
 
 */

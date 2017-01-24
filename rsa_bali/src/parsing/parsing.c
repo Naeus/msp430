@@ -106,7 +106,7 @@ unsigned char decode_address(unsigned long long *inblock, unsigned char *inmsg) 
   unsigned char blocksiz = (inblock[1] & 0x00000000000000FF) ^ ((inblock[1] & 0x0000000000FF0000) >> (8 * 2));
 
   unsigned char i;
-  for (i = 1; (i < blocksiz - 1); i++) {
+  for (i = 1; (i < blocksiz); i++) {
     numeration = ((inblock[i] & 0x00000000FF000000) >> (8 * 3)) ^ ((inblock[i] & 0x000000000000FF00) >> (8 * 1));
     if (numeration != i) {
       return 0;
