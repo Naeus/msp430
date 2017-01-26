@@ -39,7 +39,7 @@ int main(void) {
   //	rsa test
 
   //  encrypt
-  unsigned char outmsg[] = ",";
+  unsigned char outmsg[] = ',';
   unsigned long long outblock[BLOCKSIZE] = {0};
   unsigned char address = 39;
   rsa_e_addr(E, n, outblock, address, outmsg);

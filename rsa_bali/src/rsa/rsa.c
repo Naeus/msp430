@@ -6,8 +6,8 @@
 unsigned long long rsa_init(unsigned char e, unsigned long long *d) {//  returns d and n
   unsigned long p = rsae3prime_gen();
   unsigned long q = rsae3prime_gen();
-  unsigned long long n = (unsigned long long) p * q;
-  unsigned long long totn = (unsigned long long) (p - 1) * (q - 1);
+  unsigned long long n = (unsigned long long) p * q;  //  casting may be unnecessary
+  unsigned long long totn = (unsigned long long) (p - 1) * (q - 1);  //  casting may be unnecessary
   long long s, t;
   *d = gcdExtended(e, totn, &s, &t);
 

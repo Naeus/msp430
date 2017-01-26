@@ -6,7 +6,7 @@ void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char b
     unsigned char r1 = 0xFF;
     unsigned char r2 = 0xFF;
     unsigned long r = 0x00;
-    //  0x00 28 51 46 <= block[i] < 0x40000057000016AC
+    //  0x00 28 51 46 <= block[i] < 0x40 00 00 57 00 00 16 AC
 
     r = prand(rand());
     r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
