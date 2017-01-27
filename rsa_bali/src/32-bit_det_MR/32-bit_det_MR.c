@@ -23,7 +23,7 @@ unsigned char miller_rabin (unsigned long n) {    // BUGRA 3*32*32
 	  return result;
   }
 
-  else if ((n < 3) || (n % 2 == 0) || (n == 2150969633) || (n == 2186527523) ||
+  else if ((n < 3) || (n ^ 1) || (n == 2150969633) || (n == 2186527523) ||
   (n == 2188132433) || (n == 2196343601) || (n == 2244220661) ||
   (n == 2344700093) || (n == 2409385793) || (n == 2420630213) ||
   (n == 2435308919) || (n == 2455024133) || (n == 2492874281) ||
@@ -52,7 +52,7 @@ unsigned char miller_rabin (unsigned long n) {    // BUGRA 3*32*32
       unsigned char s = 0;  //s can at most be 32
 
       //  write nâˆ’1 as 2^s * d by factoring powers of 2 from nâˆ’1
-      while (d % 2 == 0) {  //  BUGRA BITWISE !(0x00000001 & d)
+      while (d ^ 1) {  //  BUGRA BITWISE !(1 & d) old (d % 2 == 0)
         d = d>>1;
         s++;
       }
@@ -73,15 +73,6 @@ unsigned char miller_rabin (unsigned long n) {    // BUGRA 3*32*32
       }
       return result;   //it is not composite, it is an spsp
     }
-}
-
-unsigned long rsae3prime_gen(void) {
-  unsigned long n = 0;
-  while (!(miller_rabin(n))) {//Miller-Rabin test
-  //while (!(try_div(n))) {//Trial Division test with predetermined primes < 16 bit DOESN'T FIT
-    n = 6 * (357913942 + (prand(rand()) % 357913941)) - 1; //   357913941 = 715827883 - 357913942
-  }
-  return n;
 }
 
 unsigned char try_div(unsigned long n) {//Based on the fact that sqrt(2^32) = 2^16
