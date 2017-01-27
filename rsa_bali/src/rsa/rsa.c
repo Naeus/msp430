@@ -9,7 +9,7 @@ unsigned long long rsa_init(unsigned char e, unsigned long long *d) {//  returns
   unsigned long q = rsae3prime_gen();
 
   while (p == q) {  //  In order to prevent having both primes equal, this is very unlikely but possible
-    p = rsae3prime_gen();   //  Change either either one of the primes, p in this case
+    p = rsae3prime_gen();   //  Change either one of the primes, p in this case
   }
 
   unsigned long long n = (unsigned long long) p * q;  //  casting may be unnecessary
@@ -31,7 +31,7 @@ unsigned long rsae3prime_gen(void) {
   unsigned long n = 0;
   while (!(miller_rabin(n))) {//Miller-Rabin test
   //while (!(try_div(n))) {//Trial Division test with predetermined primes < 16 bit DOESN'T FIT
-    n = 6 * (357913942 + (prand(rand()) % 357913941)) - 1; //   357913941 = 715827883 - 357913942
+    n = 6 * (357913942 + (prand(rand()) % 357913941)) - 1; //   357913941 = 715827883 - 357913942, the values to fit 32-bit exactly
   }
   return n;
 }

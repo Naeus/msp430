@@ -1,6 +1,7 @@
 #ifndef __PARSING_H
 #define __PARSING_H
 
+void rng_2_uc(unsigned char *r1, unsigned char *r2);
 void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char blocksiz);
 unsigned char decode(unsigned long long *inblock, unsigned char *inmsg);
 void encode_address(unsigned char *outmsg, unsigned long long *outblock, unsigned char address);

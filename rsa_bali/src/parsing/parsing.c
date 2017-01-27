@@ -1,28 +1,28 @@
 #include "bali_rand.h"
 #include "parsing.h"
+void rng_2_uc(unsigned char *r1, unsigned char *r2) {
+  unsigned long r = prand(rand());
+  //  0x00 28 51 46 <= block[i] < 0x40 00 00 57 00 00 16 AC
+  *r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
+  *r1 = (*r1 % 255) + 1;  // making sure that r1 is greater than 1
+  *r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
+
+}
+
 void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char blocksiz)  { //  returns block
 
     //    ENCODING
     unsigned char r1 = 0xFF;
     unsigned char r2 = 0xFF;
-    unsigned long r = 0x00;
     //  0x00 28 51 46 <= block[i] < 0x40 00 00 57 00 00 16 AC
 
-    r = prand(rand());
-    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
+    rng_2_uc(&r1, &r2);
     outblock[0] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
     outblock[0] |= (unsigned long long) (2 ^ r2) << (8 * 2); //    # START XOR with [2]
     outblock[0] |= (unsigned long long) (0 ^ r1) << (8 * 1); // block # XOR with [1]
     outblock[0] |= (unsigned long long) r2 << (8 * 0); //  should be random [2]
 
-    r = prand(rand());
-    r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-    r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-    r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
+    rng_2_uc(&r1, &r2);
     outblock[1] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
     outblock[1] |= (unsigned long long) (blocksiz ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
     outblock[1] |= (unsigned long long) (1 ^ r1) << (8 * 1); // block # XOR with [1]
@@ -30,12 +30,7 @@ void encode(unsigned char *outmsg, unsigned long long *outblock, unsigned char b
 
     unsigned char i;
     for (i = 2; (i < blocksiz); i++) {
-
-      r = prand(rand());
-      r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-      r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-      r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
+      rng_2_uc(&r1, &r2);
       outblock[i] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
       outblock[i] |= (unsigned long long) (outmsg[i-2] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
       outblock[i] |= (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
@@ -78,16 +73,11 @@ void encode_address(unsigned char *outmsg, unsigned long long *outblock, unsigne
 
     unsigned char r1 = 0xFF;
     unsigned char r2 = 0xFF;
-    unsigned long r = 0x00;
+    rng_2_uc(&r1, &r2);
 
     unsigned char i;
     for (i = 0; (i < 4); i++) {
-
-      r = prand(rand());
-      r1 = (unsigned char) ((r & 0xFF000000) >> (8 * 3));
-      r1 = (r1 % 255) + 1;  // making sure that r1 is greater than 1
-      r2 = (unsigned char) ((r & 0x00FF0000) >> (8 * 2));
-
+      rng_2_uc(&r1, &r2);
       outblock[i] = (unsigned long long) r1 << (8 * 3); //  01 + should be random [1]
       outblock[i] |= (unsigned long long) (arr[i] ^ r2) << (8 * 2); //    # of blocks to come XOR with [2]
       outblock[i] |= (unsigned long long) (i ^ r1) << (8 * 1); // block # XOR with [1]
