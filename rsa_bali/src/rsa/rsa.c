@@ -1,3 +1,5 @@
+#include <msp430g2553.h>
+#include <math.h>
 #include "rsa.h"
 #include "bali_math.h"
 #include "32-bit_det_MR.h"
@@ -27,12 +29,18 @@ unsigned long long rsa_init(unsigned char e, unsigned long long *d) {//  returns
   return n;
 }
 
-unsigned long rsae3prime_gen(void) {
+unsigned long rsae3prime_gen(void) {  // This function may take significant time, thus timer freq. was increased
+	unsigned int BCSCTL1_old = BCSCTL1;	//BALI
+	unsigned int DCOCTL_old = DCOCTL;	//BALI
+	DCOCTL = CALDCO_16MHZ;	// BALI increasing clk speed
+	BCSCTL1 = CALBC1_16MHZ;	// BALI increasing clk speed
   unsigned long n = 0;
   while (!(miller_rabin(n))) {//Miller-Rabin test
   //while (!(try_div(n))) {//Trial Division test with predetermined primes < 16 bit DOESN'T FIT
     n = 6 * (357913942 + (prand(rand()) % 357913941)) - 1; //   357913941 = 715827883 - 357913942, the values to fit 32-bit exactly
   }
+	DCOCTL = DCOCTL_old;	// BALI
+	BCSCTL1 = BCSCTL1_old;	// BALI
   return n;
 }
 
@@ -66,6 +74,16 @@ void rsa_d_addr(unsigned long long d, unsigned long long n, unsigned long long *
     inblock[i] = PowMod(inblock[i], d, n);
   }
   i = decode_address(inblock, inmsg); //  FIXED BUG inblock is being sent to decode as ull, but needs to be ul
+}
+
+unsigned long rsae3_exh(unsigned long long n) { //  returns the small factor of n
+  unsigned long p = 2147483651; //  smallest 32-bit number of the form 6n-1
+  while (1) { //  loops until p divides n
+    if (!(n % p)) { //  returns true only if p divides n, as in p is one of the two factors of n
+      return p;
+    }
+    p += 6; //  increase p by 6 as successive numbers of the form 6n-1 are separated by 6, for example 5, 11, 17, 23...
+  }
 }
 
 //	rsa test
