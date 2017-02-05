@@ -1,5 +1,4 @@
 #include <msp430g2553.h>
-#include <math.h>
 #include "rsa.h"
 #include "bali_math.h"
 #include "32-bit_det_MR.h"
@@ -77,7 +76,7 @@ void rsa_d_addr(unsigned long long d, unsigned long long n, unsigned long long *
 }
 
 unsigned long rsae3_exh(unsigned long long n) { //  returns the small factor of n
-  unsigned long p = 2147483651; //  smallest 32-bit number of the form 6n-1
+  unsigned long p = 2147483693; //  smallest 32-bit prime number of the form 6n-1
   while (1) { //  loops until p divides n
     if (!(n % p)) { //  returns true only if p divides n, as in p is one of the two factors of n
       return p;
